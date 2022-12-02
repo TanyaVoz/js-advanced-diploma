@@ -48,7 +48,7 @@ export default class GameController {
     }
     if (this.gameState.selected !== null && this.getChar(index) && this.isBotChar(index)) {
       if (this.isAttack(index)) {
-        this.getAttack(index, this.gameState.selected);
+        this.attack(index, this.gameState.selected);
       }
     }
     if (this.gameState.selected !== null && this.isMoving(index) && !this.getChar(index)) {
@@ -108,7 +108,7 @@ export default class GameController {
     this.gamePlay.setCursor(cursors.auto);
   }
 
-  getAttack(idx) {
+  attack(idx) {
     if (this.gameState.isUsersTurn) {
       const attacker = this.getChar(this.gameState.selected).character;
       const target = this.getChar(idx).character;
