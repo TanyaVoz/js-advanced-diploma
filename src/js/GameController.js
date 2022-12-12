@@ -21,12 +21,18 @@ export default class GameController {
     this.botCharacters = [Daemon, Undead, Vampire];
     this.userCharacters = [Bowman, Swordsman, Magician];
     this.gameState = new GameState();
+
+   
+    
   }
+  
 
   init() {
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
     this.gamePlay.drawUi(themes[this.gameState.level]);
+
+    
     this.userTeam.addAll(generateTeam([Bowman, Swordsman], 1, 2));
     this.botTeam.addAll(generateTeam(this.botCharacters, 1, 2));
     this.addsTheTeamToPosition(this.userTeam, this.getUserStartPositions());
@@ -38,39 +44,84 @@ export default class GameController {
     this.gamePlay.addNewGameListener(this.onNewGameClick.bind(this));
     this.gamePlay.addSaveGameListener(this.onSaveGameClick.bind(this));
     this.gamePlay.addLoadGameListener(this.onLoadGameClick.bind(this));
+    
   }
-
+  
   onCellClick(index) {
-    // TODO: react to click
+      
+    
+      
+
+      
+    
 
     if (this.gameState.level === 5 || this.userTeam.members.size === 0) {
       return;
     }
-    if (this.gameState.selected !== null && this.getChar(index) && this.isBotChar(index)) {
+
+    const isSelected = !!this.gameState.selected !== null
+    const char = this.getChar(index)
+    const isBot = char && this.isBotChar(index)
+
+    if (isSelected  && isBot) {
       if (this.isAttack(index)) {
-        this.attack(index, this.gameState.selected);
+        this.attack(index, isSelected);
       }
     }
-    if (this.gameState.selected !== null && this.isMoving(index) && !this.getChar(index)) {
+   
+    if (isSelected && this.isMoving(index) && !char) {
       if (this.gameState.isUsersTurn) {
         this.getUsersTurn(index);
       }
     }
-    if (this.gameState.selected !== null && !this.isMoving(index) && !this.isAttack(index)) {
+       if ( isSelected && !this.isMoving(index) && !this.isAttack(index)) {
       if (this.gameState.isUsersTurn && !this.getChar(index)) {
         GamePlay.showError('Недопустимый ход!');
       }
     }
-    if (this.getChar(index) && this.isBotChar(index) && !this.isAttack(index)) {
+   
+    if (isBot && !this.isAttack(index)) {
       GamePlay.showError('Это не ваш персонаж!');
     }
-    if (this.getChar(index) && this.isUserChar(index)) {
+    if (char && this.isUserChar(index)) {
       this.gamePlay.cells.forEach((elem) => elem.classList.remove('selected-green'));
       this.gamePlay.cells.forEach((elem) => elem.classList.remove('selected-yellow'));
       this.gamePlay.selectCell(index);
       this.gameState.selected = index;
     }
   }
+
+  // onCellClick(index) {
+  //   // TODO: react to click
+
+  //   if (this.gameState.level === 5 || this.userTeam.members.size === 0) {
+  //     return;
+  //   }
+  //   if (this.gameState.selected !== null && this.getChar(index) && this.isBotChar(index)) {
+  //     if (this.isAttack(index)) {
+  //       this.attack(index, this.gameState.selected);
+  //     }
+  //   }
+  //   if (this.gameState.selected !== null && this.isMoving(index) && !this.getChar(index)) {
+  //     if (this.gameState.isUsersTurn) {
+  //       this.getUsersTurn(index);
+  //     }
+  //   }
+  //   if (this.gameState.selected !== null && !this.isMoving(index) && !this.isAttack(index)) {
+  //     if (this.gameState.isUsersTurn && !this.getChar(index)) {
+  //       GamePlay.showError('Недопустимый ход!');
+  //     }
+  //   }
+  //   if (this.getChar(index) && this.isBotChar(index) && !this.isAttack(index)) {
+  //     GamePlay.showError('Это не ваш персонаж!');
+  //   }
+  //   if (this.getChar(index) && this.isUserChar(index)) {
+  //     this.gamePlay.cells.forEach((elem) => elem.classList.remove('selected-green'));
+  //     this.gamePlay.cells.forEach((elem) => elem.classList.remove('selected-yellow'));
+  //     this.gamePlay.selectCell(index);
+  //     this.gameState.selected = index;
+  //   }
+  // }
 
   onCellEnter(index) {
     // TODO: react to mouse enter
@@ -150,11 +201,19 @@ export default class GameController {
       || e.character instanceof Daemon
       || e.character instanceof Undead
     ));
+    // const usersTeam = this.gameState.allPositions.filter((e) => (
+    //   //this.userTeam.has(e.character)
+    //   e.character instanceof Bowman
+    //   || e.character instanceof Swordsman
+    //   || e.character instanceof Magician
+    // ));
+
     const usersTeam = this.gameState.allPositions.filter((e) => (
-      e.character instanceof Bowman
-      || e.character instanceof Swordsman
-      || e.character instanceof Magician
-    ));
+       // this.userTeam.has(e.character)
+        e.character instanceof Bowman
+        || e.character instanceof Swordsman
+        || e.character instanceof Magician
+      ));
     let bot = null;
     let target = null;
 
@@ -162,16 +221,37 @@ export default class GameController {
       return;
     }
 
-    botsTeam.forEach((elem) => {
-      const rangeAttack = this.calcRange(elem.position, elem.character.attackRange);
+  
+    
+botsTeam.forEach((elem) => {/////проверить
+  
+  const rangeAttack = this.calcRange(elem.position, elem.character.attackRange);
+   
       usersTeam.forEach((val) => {
-        if (rangeAttack.includes(val.position)) {
+       for ( val of usersTeam) {
+       if (rangeAttack.includes(val.position)) {
           bot = elem;
           target = val;
+        
+        
+           
         }
-      });
-    });
+        //{
+          break; 
+        //}
+        console.log(val);  
+     }
+    
+        
+     });
+        
+      
+       
+    
+       
 
+   });
+  
     if (target) {
       const damage = Math.max(bot.character.attack - target.character.defence, bot.character.attack * 0.1);
       this.gamePlay.showDamage(target.position, damage).then(() => {
@@ -249,6 +329,7 @@ export default class GameController {
     this.addsTheTeamToPosition(this.botTeam, this.getBotStartPositions());
     this.gamePlay.redrawPositions(this.gameState.allPositions);
   }
+  
 
   scoringPoints() {
     this.gameState.points += this.userTeam.toArray().reduce((a, b) => a + b.health, 0);
@@ -419,27 +500,27 @@ export default class GameController {
       switch (elem.character.type) {
         case 'swordsman':
           char = new Swordsman(elem.character.level);
-          this.userTeam.addAll([char]);
+          this.userTeam.add([char]);
           break;
         case 'bowman':
           char = new Bowman(elem.character.level);
-          this.userTeam.addAll([char]);
+          this.userTeam.add([char]);
           break;
         case 'magician':
           char = new Magician(elem.character.level);
-          this.userTeam.addAll([char]);
+          this.userTeam.add([char]);
           break;
         case 'undead':
           char = new Undead(elem.character.level);
-          this.botTeam.addAll([char]);
+          this.botTeam.add([char]);
           break;
         case 'vampire':
           char = new Vampire(elem.character.level);
-          this.botTeam.addAll([char]);
+          this.botTeam.add([char]);
           break;
         case 'daemon':
           char = new Daemon(elem.character.level);
-          this.botTeam.addAll([char]);
+          this.botTeam.add([char]);
           break;
         // no default
       }
