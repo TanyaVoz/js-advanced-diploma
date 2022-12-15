@@ -20,7 +20,6 @@ export default class GameController {
     this.botTeam = new Team();
     this.botCharacters = [Daemon, Undead, Vampire];
     this.userCharacters = [Bowman, Swordsman, Magician];
-
     this.gameState = new GameState();
   }
 
@@ -157,8 +156,8 @@ export default class GameController {
     const botsTeam = this.gameState.allPositions.filter((e) => (
 
       e.character instanceof Vampire
-       || e.character instanceof Daemon
-       || e.character instanceof Undead
+      || e.character instanceof Daemon
+      || e.character instanceof Undead
 
     ));
     const usersTeam = this.gameState.allPositions.filter((e) => this.userTeam.has(e.character));
@@ -172,7 +171,8 @@ export default class GameController {
 
     botsTeam.forEach((elem) => {
       const rangeAttack = this.calcRange(elem.position, elem.character.attackRange);
-
+      /* eslint no-unreachable-loop: ["error", { ignore: ["ForOfStatement"] }] */
+      /* eslint-disable no-param-reassign */
       usersTeam.forEach((val) => {
         for (val of usersTeam) {
           if (rangeAttack.includes(val.position)) {
@@ -182,7 +182,7 @@ export default class GameController {
 
           break;
 
-        // console.log(val);
+          // console.log(val);
         }
       });
     });
